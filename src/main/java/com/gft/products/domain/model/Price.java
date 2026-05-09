@@ -1,4 +1,4 @@
-﻿package com.gft.products.domain.model;
+package com.gft.products.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

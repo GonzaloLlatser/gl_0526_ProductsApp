@@ -1,4 +1,4 @@
-﻿package com.gft.products.application.port.out;
+package com.gft.products.application.port.out;
 
 import com.gft.products.domain.model.Product;
 

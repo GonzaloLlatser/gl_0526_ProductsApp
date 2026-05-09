@@ -1,4 +1,4 @@
-﻿package com.gft.products.application.service;
+package com.gft.products.application.service;
 
 import com.gft.products.application.port.in.GetCurrentProductPricePort;
 import com.gft.products.domain.model.Price;
