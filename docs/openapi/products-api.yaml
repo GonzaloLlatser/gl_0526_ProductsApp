@@ -1,0 +1,365 @@
+openapi: 3.0.3
+info:
+  title: Products Historical Prices API
+  description: >
+    API to manage products and their historical prices.
+
+    Price ranges use closed intervals: initDate and endDate are both inclusive.
+    When endDate is null, the price is valid indefinitely from initDate.
+    A product cannot have two prices active on the same day.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+tags:
+  - name: Products
+    description: Product operations
+  - name: Prices
+    description: Product price operations
+paths:
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+            examples:
+              createProduct:
+                value:
+                  name: Zapatillas deportivas
+                  description: Modelo 2025 edicion limitada
+      responses:
+        '201':
+          description: Product created
+          headers:
+            Location:
+              description: URI of the created product.
+              schema:
+                type: string
+              example: /products/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+              examples:
+                productCreated:
+                  value:
+                    id: 1
+                    name: Zapatillas deportivas
+                    description: Modelo 2025 edicion limitada
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /products/{id}/prices:
+    post:
+      tags:
+        - Prices
+      summary: Add a price to a product
+      operationId: addProductPrice
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePriceRequest'
+            examples:
+              addPrice:
+                value:
+                  value: 99.99
+                  initDate: '2024-01-01'
+                  endDate: '2024-06-30'
+      responses:
+        '201':
+          description: Price created
+          headers:
+            Location:
+              description: URI of the product price history.
+              schema:
+                type: string
+              example: /products/1/prices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+              examples:
+                priceCreated:
+                  value:
+                    value: 99.99
+                    initDate: '2024-01-01'
+                    endDate: '2024-06-30'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      tags:
+        - Prices
+      summary: Get current price or complete price history for a product
+      description: >
+        Returns the product price active on the requested date when the optional
+        date query parameter is provided. Returns the complete product price
+        history when the date query parameter is omitted. Price range boundaries
+        are inclusive.
+      operationId: getProductPrices
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+        - name: date
+          in: query
+          required: false
+          description: Date used to find the active product price.
+          schema:
+            type: string
+            format: date
+          example: '2024-04-15'
+      responses:
+        '200':
+          description: Product current price or product price history
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CurrentPriceResponse'
+                  - $ref: '#/components/schemas/ProductPriceHistoryResponse'
+              examples:
+                currentPrice:
+                  summary: Response when date query parameter is provided
+                  value:
+                    value: 99.99
+                priceHistory:
+                  summary: Response when date query parameter is omitted
+                  value:
+                    name: Zapatillas deportivas
+                    description: Modelo 2025 edicion limitada
+                    prices:
+                      - value: 99.99
+                        initDate: '2024-01-01'
+                        endDate: '2024-06-30'
+                      - value: 199.99
+                        initDate: '2025-01-01'
+                        endDate: '2025-06-30'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: Product identifier.
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 1
+  responses:
+    BadRequest:
+      description: Invalid request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalidDateRange:
+              value:
+                code: INVALID_PRICE_DATE_RANGE
+                message: initDate must be before endDate
+                details:
+                  - field: endDate
+                    message: must be after initDate
+            validationError:
+              value:
+                code: VALIDATION_ERROR
+                message: Request validation failed
+                details:
+                  - field: name
+                    message: must not be blank
+            invalidRequest:
+              value:
+                code: INVALID_REQUEST
+                message: Request body is malformed or contains unsupported fields
+                details: []
+    NotFound:
+      description: Requested resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            productNotFound:
+              value:
+                code: PRODUCT_NOT_FOUND
+                message: Product was not found
+                details: []
+            priceNotFound:
+              value:
+                code: PRICE_NOT_FOUND
+                message: Product does not have an active price for the requested date
+                details: []
+    Conflict:
+      description: Request conflicts with current resource state
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            overlappingPrice:
+              value:
+                code: PRICE_DATE_OVERLAP
+                message: Price range overlaps with an existing product price
+                details: []
+  schemas:
+    CreateProductRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Product name. Blank values are not accepted.
+          example: Zapatillas deportivas
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+          example: Modelo 2025 edicion limitada
+    ProductResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Zapatillas deportivas
+        description:
+          type: string
+          nullable: true
+          example: Modelo 2025 edicion limitada
+    CreatePriceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - value
+        - initDate
+      properties:
+        value:
+          type: number
+          format: decimal
+          minimum: 0
+          exclusiveMinimum: true
+          description: Product price value. Must be greater than zero.
+          example: 99.99
+        initDate:
+          type: string
+          format: date
+          description: First day when the price is active. Inclusive.
+          example: '2024-01-01'
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          description: Last day when the price is active. Inclusive. Null means no end date.
+          example: '2024-06-30'
+      description: >
+        endDate can be null. When present, initDate must be before endDate.
+        Price ranges are inclusive and cannot overlap with another price from
+        the same product.
+    CurrentPriceResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - value
+      properties:
+        value:
+          type: number
+          format: decimal
+          description: Active product price for the requested date.
+          example: 99.99
+    ProductPriceHistoryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - prices
+      properties:
+        name:
+          type: string
+          example: Zapatillas deportivas
+        description:
+          type: string
+          nullable: true
+          example: Modelo 2025 edicion limitada
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceResponse'
+    PriceResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - value
+        - initDate
+      properties:
+        value:
+          type: number
+          format: decimal
+          example: 99.99
+        initDate:
+          type: string
+          format: date
+          example: '2024-01-01'
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          example: '2024-06-30'
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - details
+      properties:
+        code:
+          type: string
+          example: PRODUCT_NOT_FOUND
+        message:
+          type: string
+          example: Product was not found
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - message
+      properties:
+        field:
+          type: string
+          nullable: true
+          example: initDate
+        message:
+          type: string
+          example: must not be null
