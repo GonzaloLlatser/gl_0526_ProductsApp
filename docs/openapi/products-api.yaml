@@ -37,12 +37,6 @@ paths:
       responses:
         '201':
           description: Product created
-          headers:
-            Location:
-              description: URI of the created product.
-              schema:
-                type: string
-              example: /products/1
           content:
             application/json:
               schema:
@@ -78,12 +72,6 @@ paths:
       responses:
         '201':
           description: Price created
-          headers:
-            Location:
-              description: URI of the product price history.
-              schema:
-                type: string
-              example: /products/1/prices
           content:
             application/json:
               schema:
