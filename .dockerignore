@@ -1,0 +1,4 @@
+target/*
+!target/products-app-1.6.0-SNAPSHOT.jar
+.git
+.vscode

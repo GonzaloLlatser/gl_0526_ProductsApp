@@ -2,7 +2,7 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.5.0-SNAPSHOT`.
+Version actual: `1.6.0-SNAPSHOT`.
 
 ## Funcionalidad
 
@@ -34,6 +34,7 @@ Los rangos de precio se tratan como intervalos cerrados: `initDate` y `endDate` 
 - JUnit 5
 - Mockito
 - RestAssured
+- Docker Compose y k6 para pruebas de rendimiento automatizadas
 
 ## Justificacion Del Stack
 
@@ -46,6 +47,7 @@ Los rangos de precio se tratan como intervalos cerrados: `initDate` y `endDate` 
 - Springdoc expone Swagger UI y documentacion OpenAPI runtime.
 - JUnit 5 y Mockito permiten tests unitarios aislados de los casos de uso.
 - RestAssured permite tests funcionales automatizados consumiendo la API por HTTP.
+- k6 permite ejecutar pruebas de carga versionadas sin incluir dependencias en la aplicacion Java.
 
 ## Arquitectura
 
@@ -241,6 +243,69 @@ Los E2E cubren:
 - Actualizar precios existentes.
 - Eliminar precios existentes.
 
+## Rendimiento
+
+Las pruebas de rendimiento estan separadas de `mvn test` porque requieren la aplicacion levantada y generan carga HTTP real.
+
+Requisitos:
+
+- Tener Docker Desktop o Rancher Desktop instalado.
+- Tener Docker Desktop o Rancher Desktop levantado y con el engine en ejecucion.
+- Ejecutar los comandos desde la raiz del proyecto.
+
+Primero levantar la aplicacion:
+
+```powershell
+mvn spring-boot:run
+```
+
+Ejecutar flujo basico:
+
+```powershell
+docker compose run --rm k6-basic
+```
+
+Ejecutar flujo de mantenimiento:
+
+```powershell
+docker compose run --rm k6-maintenance
+```
+
+Si Docker no esta levantado, el comando puede fallar con un error similar a `open //./pipe/docker_engine`. En ese caso abrir Docker Desktop o Rancher Desktop, esperar a que termine de iniciar y validar con:
+
+```powershell
+docker version
+```
+
+Los scripts estan en:
+
+```text
+performance/k6/product-price-basic-flow.js
+performance/k6/product-price-maintenance-flow.js
+```
+
+El flujo basico cubre:
+
+- Crear producto.
+- Agregar precio.
+- Consultar precio vigente.
+
+El flujo de mantenimiento cubre:
+
+- Consultar historial paginado.
+- Actualizar precio.
+- Eliminar precio.
+
+Los umbrales definidos validan que haya menos de `1%` de errores HTTP y que el percentil `p95` de respuesta se mantenga por debajo del limite definido en cada script.
+
+Los scripts k6 crean datos reales mediante la API. Al usar H2 en memoria, estos datos quedan disponibles mientras la aplicacion siga levantada y se eliminan al reiniciarla.
+
+Para parar y eliminar los contenedores:
+
+```powershell
+docker compose down
+```
+
 ## Base De Datos
 
 Se usa H2 en memoria.
@@ -312,6 +377,12 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - No se implementan endpoints no requeridos para mantener el codigo minimo.
 
 ## Versiones
+
+### 1.6.0
+
+- Bonus: pruebas de rendimiento automatizadas con k6.
+- Dos flujos separados: basico y mantenimiento.
+- Ejecucion con Docker Compose sin agregar dependencias al proyecto Java.
 
 ### 1.5.0
 

@@ -1,0 +1,16 @@
+services:
+  k6-basic:
+    image: grafana/k6:0.54.0
+    environment:
+      BASE_URL: ${BASE_URL:-http://host.docker.internal:8080}
+    volumes:
+      - ./performance/k6:/scripts:ro
+    command: run /scripts/product-price-basic-flow.js
+
+  k6-maintenance:
+    image: grafana/k6:0.54.0
+    environment:
+      BASE_URL: ${BASE_URL:-http://host.docker.internal:8080}
+    volumes:
+      - ./performance/k6:/scripts:ro
+    command: run /scripts/product-price-maintenance-flow.js

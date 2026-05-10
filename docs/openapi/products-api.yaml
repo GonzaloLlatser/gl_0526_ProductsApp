@@ -7,7 +7,7 @@ info:
     Price ranges use closed intervals: initDate and endDate are both inclusive.
     When endDate is null, the price is valid indefinitely from initDate.
     A product cannot have two prices active on the same day.
-  version: 1.5.0
+  version: 1.6.0
 servers:
   - url: http://localhost:8080
     description: Local development server
