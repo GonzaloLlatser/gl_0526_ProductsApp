@@ -12,7 +12,11 @@ public interface PriceRepositoryPort {
 
   PricePage findByProductId(Long productId, int page, int size, String sortField, boolean ascending);
 
+  Optional<Price> findByIdAndProductId(Long productId, Long priceId);
+
   Optional<Price> findActiveByProductIdAndDate(Long productId, LocalDate date);
 
   boolean existsOverlappingPrice(Long productId, Price price);
+
+  boolean existsOverlappingPriceExcludingId(Long productId, Price price);
 }

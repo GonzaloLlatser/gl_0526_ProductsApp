@@ -2,11 +2,11 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.3.0-SNAPSHOT`.
+Version actual: `1.4.0-SNAPSHOT`.
 
 ## Funcionalidad
 
-La version 1.0 implementa los requisitos base de la prueba tecnica:
+La aplicacion implementa los requisitos base de la prueba tecnica y los bonus documentados en la seccion de versiones:
 
 - Crear productos.
 - Agregar precios historicos a un producto.
@@ -15,6 +15,7 @@ La version 1.0 implementa los requisitos base de la prueba tecnica:
 - Consultar el historial completo de precios de un producto.
 - Gestionar errores de validacion, producto no encontrado y precio no encontrado.
 - Soportar moneda por precio.
+- Actualizar precios existentes manteniendo reglas de validacion y solape.
 
 Los rangos de precio se tratan como intervalos cerrados: `initDate` y `endDate` son inclusivos. Cuando `endDate` es `null`, el precio queda vigente indefinidamente desde `initDate`.
 
@@ -99,6 +100,21 @@ POST /products/{id}/prices
 {
   "value": 99.99,
   "currency": "EUR",
+  "initDate": "2024-01-01",
+  "endDate": "2024-06-30"
+}
+```
+
+### Actualizar precio
+
+```http
+PUT /products/{productId}/prices/{priceId}
+```
+
+```json
+{
+  "value": 109.99,
+  "currency": "USD",
   "initDate": "2024-01-01",
   "endDate": "2024-06-30"
 }
@@ -287,6 +303,11 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - No se implementan endpoints no requeridos para mantener el codigo minimo.
 
 ## Versiones
+
+### 1.4.0
+
+- Bonus: endpoint para actualizar precios existentes.
+- Validacion de valor, moneda, rango de fechas y solape excluyendo el propio precio.
 
 ### 1.3.0
 

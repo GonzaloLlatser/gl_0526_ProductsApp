@@ -7,4 +7,8 @@ public class PriceNotFoundException extends RuntimeException {
   public PriceNotFoundException(Long productId, LocalDate date) {
     super("Product " + productId + " does not have an active price for date " + date);
   }
+
+  public PriceNotFoundException(Long productId, Long priceId) {
+    super("Product " + productId + " does not have price " + priceId);
+  }
 }

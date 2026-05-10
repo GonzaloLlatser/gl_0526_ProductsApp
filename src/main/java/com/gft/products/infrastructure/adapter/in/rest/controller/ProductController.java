@@ -4,6 +4,7 @@ import com.gft.products.application.port.in.AddProductPricePort;
 import com.gft.products.application.port.in.CreateProductPort;
 import com.gft.products.application.port.in.GetCurrentProductPricePort;
 import com.gft.products.application.port.in.GetProductPriceHistoryPort;
+import com.gft.products.application.port.in.UpdateProductPricePort;
 import com.gft.products.domain.model.Price;
 import com.gft.products.domain.model.Product;
 import com.gft.products.domain.model.ProductPriceHistory;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +41,7 @@ public class ProductController {
 
   private final CreateProductPort createProductPort;
   private final AddProductPricePort addProductPricePort;
+  private final UpdateProductPricePort updateProductPricePort;
   private final GetCurrentProductPricePort getCurrentProductPricePort;
   private final GetProductPriceHistoryPort getProductPriceHistoryPort;
 
@@ -62,6 +65,21 @@ public class ProductController {
         request.endDate());
     return ResponseEntity.status(201)
         .body(ProductRestMapper.toPriceResponse(price));
+  }
+
+  @PutMapping("/{productId}/prices/{priceId}")
+  public ResponseEntity<PriceResponse> updateProductPrice(
+      @Positive @PathVariable Long productId,
+      @Positive @PathVariable Long priceId,
+      @Valid @RequestBody CreatePriceRequest request) {
+    Price price = updateProductPricePort.updateProductPrice(
+        productId,
+        priceId,
+        request.value(),
+        request.currency(),
+        request.initDate(),
+        request.endDate());
+    return ResponseEntity.ok(ProductRestMapper.toPriceResponse(price));
   }
 
   @GetMapping("/{id}/prices")

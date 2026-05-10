@@ -14,6 +14,8 @@ public interface PriceJpaRepository extends JpaRepository<PriceEntity, Long> {
 
   Page<PriceEntity> findByProductId(Long productId, Pageable pageable);
 
+  Optional<PriceEntity> findByIdAndProductId(Long id, Long productId);
+
   @Query("""
       SELECT price
       FROM PriceEntity price
@@ -36,6 +38,21 @@ public interface PriceJpaRepository extends JpaRepository<PriceEntity, Long> {
       """)
   boolean existsOverlappingPrice(
       @Param("productId") Long productId,
+      @Param("initDate") LocalDate initDate,
+      @Param("endDate") LocalDate endDate
+  );
+
+  @Query("""
+      SELECT COUNT(price) > 0
+      FROM PriceEntity price
+      WHERE price.product.id = :productId
+        AND price.id <> :priceId
+        AND price.initDate <= :endDate
+        AND (price.endDate IS NULL OR price.endDate >= :initDate)
+      """)
+  boolean existsOverlappingPriceExcludingId(
+      @Param("productId") Long productId,
+      @Param("priceId") Long priceId,
       @Param("initDate") LocalDate initDate,
       @Param("endDate") LocalDate endDate
   );

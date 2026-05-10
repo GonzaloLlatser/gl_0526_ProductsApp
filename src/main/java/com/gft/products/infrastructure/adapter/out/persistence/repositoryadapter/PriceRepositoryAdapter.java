@@ -51,6 +51,13 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
 
   @Override
   @Transactional(readOnly = true)
+  public Optional<Price> findByIdAndProductId(Long productId, Long priceId) {
+    return priceJpaRepository.findByIdAndProductId(priceId, productId)
+        .map(this::toDomain);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
   public Optional<Price> findActiveByProductIdAndDate(Long productId, LocalDate date) {
     return priceJpaRepository.findActiveByProductIdAndDate(productId, date)
         .map(this::toDomain);
@@ -61,6 +68,13 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
   public boolean existsOverlappingPrice(Long productId, Price price) {
     LocalDate endDate = price.getEndDate() == null ? LocalDate.MAX : price.getEndDate();
     return priceJpaRepository.existsOverlappingPrice(productId, price.getInitDate(), endDate);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public boolean existsOverlappingPriceExcludingId(Long productId, Price price) {
+    LocalDate endDate = price.getEndDate() == null ? LocalDate.MAX : price.getEndDate();
+    return priceJpaRepository.existsOverlappingPriceExcludingId(productId, price.getId(), price.getInitDate(), endDate);
   }
 
   private PriceEntity toEntity(Price price, ProductEntity productEntity) {

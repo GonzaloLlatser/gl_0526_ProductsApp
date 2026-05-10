@@ -53,6 +53,7 @@ class ProductPricesE2ETest {
         .post("/products/{id}/prices", productId)
         .then()
         .statusCode(201)
+        .body("id", notNullValue())
         .body("value", comparesEqualTo(79.99F))
         .body("currency", equalTo("EUR"))
         .body("initDate", equalTo("2030-01-01"))
@@ -83,6 +84,41 @@ class ProductPricesE2ETest {
         .body(priceRequest("99.99", "2032-06-01", "2033-01-31"))
         .when()
         .post("/products/{id}/prices", productId)
+        .then()
+        .statusCode(409)
+        .body("code", equalTo("PRICE_DATE_OVERLAP"));
+  }
+
+  @Test
+  void shouldUpdatePriceSuccessfully() {
+    Long productId = createProduct("E2E Update Price Product");
+    Long priceId = addPrice(productId, "89.99", "2038-01-01", "2038-12-31");
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(priceRequest("109.99", "2038-01-01", "2038-12-31"))
+        .when()
+        .put("/products/{productId}/prices/{priceId}", productId, priceId)
+        .then()
+        .statusCode(200)
+        .body("id", equalTo(priceId.intValue()))
+        .body("value", comparesEqualTo(109.99F))
+        .body("currency", equalTo("EUR"))
+        .body("initDate", equalTo("2038-01-01"))
+        .body("endDate", equalTo("2038-12-31"));
+  }
+
+  @Test
+  void shouldRejectPriceUpdateWhenDatesOverlapAnotherPrice() {
+    Long productId = createProduct("E2E Update Overlap Product");
+    Long priceId = addPrice(productId, "89.99", "2039-01-01", "2039-06-30");
+    addPrice(productId, "99.99", "2039-07-01", "2039-12-31");
+
+    given()
+        .contentType(ContentType.JSON)
+        .body(priceRequest("109.99", "2039-06-01", "2039-08-31"))
+        .when()
+        .put("/products/{productId}/prices/{priceId}", productId, priceId)
         .then()
         .statusCode(409)
         .body("code", equalTo("PRICE_DATE_OVERLAP"));
@@ -130,6 +166,7 @@ class ProductPricesE2ETest {
         .statusCode(200)
         .body("name", equalTo("E2E History Product"))
         .body("prices", hasSize(2))
+        .body("prices[0].id", notNullValue())
         .body("prices[0].value", comparesEqualTo(19.99F))
         .body("prices[0].currency", equalTo("EUR"))
         .body("prices[0].initDate", equalTo("2036-01-01"))
@@ -206,14 +243,17 @@ class ProductPricesE2ETest {
         .getLong("id");
   }
 
-  private void addPrice(Long productId, String value, String initDate, String endDate) {
-    given()
+  private Long addPrice(Long productId, String value, String initDate, String endDate) {
+    return given()
         .contentType(ContentType.JSON)
         .body(priceRequest(value, initDate, endDate))
         .when()
         .post("/products/{id}/prices", productId)
         .then()
-        .statusCode(201);
+        .statusCode(201)
+        .extract()
+        .jsonPath()
+        .getLong("id");
   }
 
   private Map<String, Object> priceRequest(String value, String initDate, String endDate) {

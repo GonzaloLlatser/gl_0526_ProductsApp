@@ -25,6 +25,7 @@ public final class ProductRestMapper {
 
   public static PriceResponse toPriceResponse(Price price) {
     return new PriceResponse(
+        price.getId(),
         price.getValue(),
         price.getCurrency(),
         price.getInitDate(),
