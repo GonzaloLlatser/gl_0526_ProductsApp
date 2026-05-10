@@ -38,6 +38,9 @@ public class PriceEntity {
   @Column(name = "price_value", nullable = false, precision = 19, scale = 2)
   private BigDecimal value;
 
+  @Column(nullable = false, length = 3)
+  private String currency;
+
   @Column(name = "init_date", nullable = false)
   private LocalDate initDate;
 

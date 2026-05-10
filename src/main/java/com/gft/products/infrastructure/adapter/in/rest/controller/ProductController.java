@@ -57,6 +57,7 @@ public class ProductController {
     Price price = addProductPricePort.addProductPrice(
         id,
         request.value(),
+        request.currency(),
         request.initDate(),
         request.endDate());
     return ResponseEntity.status(201)

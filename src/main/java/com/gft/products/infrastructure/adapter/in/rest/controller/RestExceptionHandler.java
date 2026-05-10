@@ -1,5 +1,6 @@
 package com.gft.products.infrastructure.adapter.in.rest.controller;
 
+import com.gft.products.application.exceptions.InvalidPriceCurrencyException;
 import com.gft.products.application.exceptions.InvalidPriceDateRangeException;
 import com.gft.products.application.exceptions.InvalidPriceValueException;
 import com.gft.products.application.exceptions.InvalidProductException;
@@ -40,6 +41,11 @@ public class RestExceptionHandler {
   @ExceptionHandler(InvalidPriceValueException.class)
   public ResponseEntity<ErrorResponse> handleInvalidPriceValue(InvalidPriceValueException exception) {
     return error(HttpStatus.BAD_REQUEST, "INVALID_PRICE_VALUE", exception.getMessage());
+  }
+
+  @ExceptionHandler(InvalidPriceCurrencyException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidPriceCurrency(InvalidPriceCurrencyException exception) {
+    return error(HttpStatus.BAD_REQUEST, "INVALID_PRICE_CURRENCY", exception.getMessage());
   }
 
   @ExceptionHandler(InvalidPriceDateRangeException.class)

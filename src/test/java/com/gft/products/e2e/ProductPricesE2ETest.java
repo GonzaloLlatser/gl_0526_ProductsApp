@@ -54,6 +54,7 @@ class ProductPricesE2ETest {
         .then()
         .statusCode(201)
         .body("value", comparesEqualTo(79.99F))
+        .body("currency", equalTo("EUR"))
         .body("initDate", equalTo("2030-01-01"))
         .body("endDate", equalTo("2030-12-31"));
   }
@@ -98,7 +99,8 @@ class ProductPricesE2ETest {
         .get("/products/{id}/prices", productId)
         .then()
         .statusCode(200)
-        .body("value", comparesEqualTo(49.99F));
+        .body("value", comparesEqualTo(49.99F))
+        .body("currency", equalTo("EUR"));
   }
 
   @Test
@@ -129,9 +131,11 @@ class ProductPricesE2ETest {
         .body("name", equalTo("E2E History Product"))
         .body("prices", hasSize(2))
         .body("prices[0].value", comparesEqualTo(19.99F))
+        .body("prices[0].currency", equalTo("EUR"))
         .body("prices[0].initDate", equalTo("2036-01-01"))
         .body("prices[0].endDate", equalTo("2036-06-30"))
         .body("prices[1].value", comparesEqualTo(29.99F))
+        .body("prices[1].currency", equalTo("EUR"))
         .body("prices[1].initDate", equalTo("2036-07-01"))
         .body("prices[1].endDate", equalTo(null))
         .body("page", equalTo(0))
@@ -215,6 +219,7 @@ class ProductPricesE2ETest {
   private Map<String, Object> priceRequest(String value, String initDate, String endDate) {
     Map<String, Object> request = new HashMap<>();
     request.put("value", new BigDecimal(value));
+    request.put("currency", "EUR");
     request.put("initDate", LocalDate.parse(initDate));
     request.put("endDate", endDate == null ? null : LocalDate.parse(endDate));
     return request;

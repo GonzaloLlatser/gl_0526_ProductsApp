@@ -38,6 +38,7 @@ class GetCurrentProductPriceServiceTest {
   void shouldReturnCurrentPriceWhenExists() {
     Price price = Price.builder()
         .value(new BigDecimal("99.99"))
+        .currency("EUR")
         .initDate(LocalDate.of(2024, 1, 1))
         .endDate(null)
         .build();

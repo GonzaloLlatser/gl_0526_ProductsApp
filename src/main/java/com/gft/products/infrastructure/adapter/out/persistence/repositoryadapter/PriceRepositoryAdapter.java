@@ -68,6 +68,7 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
         .id(price.getId())
         .product(productEntity)
         .value(price.getValue())
+        .currency(price.getCurrency())
         .initDate(price.getInitDate())
         .endDate(price.getEndDate())
         .build();
@@ -77,6 +78,7 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
     return Price.builder()
         .id(priceEntity.getId())
         .value(priceEntity.getValue())
+        .currency(priceEntity.getCurrency())
         .initDate(priceEntity.getInitDate())
         .endDate(priceEntity.getEndDate())
         .build();

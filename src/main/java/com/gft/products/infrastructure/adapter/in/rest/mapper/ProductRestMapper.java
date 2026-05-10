@@ -26,13 +26,14 @@ public final class ProductRestMapper {
   public static PriceResponse toPriceResponse(Price price) {
     return new PriceResponse(
         price.getValue(),
+        price.getCurrency(),
         price.getInitDate(),
         price.getEndDate()
     );
   }
 
   public static CurrentPriceResponse toCurrentPriceResponse(Price price) {
-    return new CurrentPriceResponse(price.getValue());
+    return new CurrentPriceResponse(price.getValue(), price.getCurrency());
   }
 
   public static ProductPriceHistoryResponse toProductPriceHistoryResponse(ProductPriceHistory productPriceHistory) {

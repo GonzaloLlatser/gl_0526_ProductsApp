@@ -2,7 +2,7 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.2.0-SNAPSHOT`.
+Version actual: `1.3.0-SNAPSHOT`.
 
 ## Funcionalidad
 
@@ -14,6 +14,7 @@ La version 1.0 implementa los requisitos base de la prueba tecnica:
 - Consultar el precio vigente de un producto para una fecha.
 - Consultar el historial completo de precios de un producto.
 - Gestionar errores de validacion, producto no encontrado y precio no encontrado.
+- Soportar moneda por precio.
 
 Los rangos de precio se tratan como intervalos cerrados: `initDate` y `endDate` son inclusivos. Cuando `endDate` es `null`, el precio queda vigente indefinidamente desde `initDate`.
 
@@ -97,6 +98,7 @@ POST /products/{id}/prices
 ```json
 {
   "value": 99.99,
+  "currency": "EUR",
   "initDate": "2024-01-01",
   "endDate": "2024-06-30"
 }
@@ -112,7 +114,8 @@ Respuesta:
 
 ```json
 {
-  "value": 99.99
+  "value": 99.99,
+  "currency": "EUR"
 }
 ```
 
@@ -131,6 +134,7 @@ Respuesta:
   "prices": [
     {
       "value": 99.99,
+      "currency": "EUR",
       "initDate": "2024-01-01",
       "endDate": "2024-06-30"
     }
@@ -240,6 +244,8 @@ Las tablas se crean con `src/main/resources/schema.sql` y los datos iniciales se
 
 La carga de datos de prueba es automatica al arrancar la aplicacion porque `spring.sql.init.mode=always` ejecuta ambos scripts. El seed incluye varios productos, historiales con rangos cerrados y precios vigentes sin fecha fin para facilitar la revision manual desde API o H2.
 
+Los precios seed usan varias monedas (`EUR`, `USD`, `GBP`) para facilitar la revision del bonus de moneda.
+
 Para probar paginacion manualmente se puede usar el producto seed `6`, que contiene 24 precios historicos:
 
 ```http
@@ -281,6 +287,11 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - No se implementan endpoints no requeridos para mantener el codigo minimo.
 
 ## Versiones
+
+### 1.3.0
+
+- Bonus: soporte de moneda por precio mediante codigo de 3 letras.
+- No se implementa conversion de divisas ni tipos de cambio.
 
 ### 1.2.0
 

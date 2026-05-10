@@ -7,5 +7,5 @@ import java.time.LocalDate;
 
 public interface AddProductPricePort {
 
-  Price addProductPrice(Long productId, BigDecimal value, LocalDate initDate, LocalDate endDate);
+  Price addProductPrice(Long productId, BigDecimal value, String currency, LocalDate initDate, LocalDate endDate);
 }

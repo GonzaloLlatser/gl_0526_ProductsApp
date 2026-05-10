@@ -1,6 +1,7 @@
 package com.gft.products.application.service;
 
 import com.gft.products.application.exceptions.InvalidPriceDateRangeException;
+import com.gft.products.application.exceptions.InvalidPriceCurrencyException;
 import com.gft.products.application.exceptions.InvalidPriceValueException;
 import com.gft.products.application.exceptions.PriceDateOverlapException;
 import com.gft.products.application.exceptions.ProductNotFoundException;
@@ -43,6 +44,7 @@ class AddProductPriceServiceTest {
     Price savedPrice = Price.builder()
         .id(1L)
         .value(new BigDecimal("99.99"))
+        .currency("EUR")
         .initDate(LocalDate.of(2024, 1, 1))
         .endDate(LocalDate.of(2024, 12, 31))
         .build();
@@ -56,6 +58,7 @@ class AddProductPriceServiceTest {
     Price result = addProductPriceService.addProductPrice(
         PRODUCT_ID,
         new BigDecimal("99.99"),
+        "eur",
         LocalDate.of(2024, 1, 1),
         LocalDate.of(2024, 12, 31)
     );
@@ -64,6 +67,7 @@ class AddProductPriceServiceTest {
     verify(priceRepositoryPort).save(org.mockito.ArgumentMatchers.eq(PRODUCT_ID), priceCaptor.capture());
 
     assertThat(priceCaptor.getValue().getValue()).isEqualByComparingTo("99.99");
+    assertThat(priceCaptor.getValue().getCurrency()).isEqualTo("EUR");
     assertThat(priceCaptor.getValue().getInitDate()).isEqualTo(LocalDate.of(2024, 1, 1));
     assertThat(priceCaptor.getValue().getEndDate()).isEqualTo(LocalDate.of(2024, 12, 31));
     assertThat(result).isEqualTo(savedPrice);
@@ -76,6 +80,7 @@ class AddProductPriceServiceTest {
     assertThatThrownBy(() -> addProductPriceService.addProductPrice(
         PRODUCT_ID,
         BigDecimal.ONE,
+        "EUR",
         LocalDate.of(2024, 1, 1),
         null
     )).isInstanceOf(ProductNotFoundException.class);
@@ -90,9 +95,23 @@ class AddProductPriceServiceTest {
     assertThatThrownBy(() -> addProductPriceService.addProductPrice(
         PRODUCT_ID,
         BigDecimal.ZERO,
+        "EUR",
         LocalDate.of(2024, 1, 1),
         null
     )).isInstanceOf(InvalidPriceValueException.class);
+  }
+
+  @Test
+  void shouldRejectPriceWhenCurrencyIsInvalid() {
+    when(productRepositoryPort.existsById(PRODUCT_ID)).thenReturn(true);
+
+    assertThatThrownBy(() -> addProductPriceService.addProductPrice(
+        PRODUCT_ID,
+        BigDecimal.ONE,
+        "EU",
+        LocalDate.of(2024, 1, 1),
+        null
+    )).isInstanceOf(InvalidPriceCurrencyException.class);
   }
 
   @Test
@@ -102,6 +121,7 @@ class AddProductPriceServiceTest {
     assertThatThrownBy(() -> addProductPriceService.addProductPrice(
         PRODUCT_ID,
         BigDecimal.ONE,
+        "EUR",
         LocalDate.of(2024, 1, 1),
         LocalDate.of(2024, 1, 1)
     )).isInstanceOf(InvalidPriceDateRangeException.class);
@@ -116,6 +136,7 @@ class AddProductPriceServiceTest {
     assertThatThrownBy(() -> addProductPriceService.addProductPrice(
         PRODUCT_ID,
         BigDecimal.ONE,
+        "EUR",
         LocalDate.of(2024, 1, 1),
         null
     )).isInstanceOf(PriceDateOverlapException.class);

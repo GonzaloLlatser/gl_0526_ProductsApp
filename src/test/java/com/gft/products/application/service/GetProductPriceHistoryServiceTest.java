@@ -46,6 +46,7 @@ class GetProductPriceHistoryServiceTest {
     List<Price> prices = List.of(
         Price.builder()
             .value(new BigDecimal("99.99"))
+            .currency("EUR")
             .initDate(LocalDate.of(2024, 1, 1))
             .endDate(LocalDate.of(2024, 6, 30))
             .build()

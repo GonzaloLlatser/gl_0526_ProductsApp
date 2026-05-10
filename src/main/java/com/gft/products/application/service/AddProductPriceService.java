@@ -1,6 +1,7 @@
 package com.gft.products.application.service;
 
 import com.gft.products.application.exceptions.InvalidPriceDateRangeException;
+import com.gft.products.application.exceptions.InvalidPriceCurrencyException;
 import com.gft.products.application.exceptions.InvalidPriceValueException;
 import com.gft.products.application.exceptions.PriceDateOverlapException;
 import com.gft.products.application.exceptions.ProductNotFoundException;
@@ -23,7 +24,7 @@ public class AddProductPriceService implements AddProductPricePort {
   private final PriceRepositoryPort priceRepositoryPort;
 
   @Override
-  public Price addProductPrice(Long productId, BigDecimal value, LocalDate initDate, LocalDate endDate) {
+  public Price addProductPrice(Long productId, BigDecimal value, String currency, LocalDate initDate, LocalDate endDate) {
     Objects.requireNonNull(productId, "productId must not be null");
     Objects.requireNonNull(value, "value must not be null");
     Objects.requireNonNull(initDate, "initDate must not be null");
@@ -36,12 +37,15 @@ public class AddProductPriceService implements AddProductPricePort {
       throw new InvalidPriceValueException();
     }
 
+    String normalizedCurrency = normalizeCurrency(currency);
+
     if (endDate != null && !initDate.isBefore(endDate)) {
       throw new InvalidPriceDateRangeException();
     }
 
     Price price = Price.builder()
         .value(value)
+        .currency(normalizedCurrency)
         .initDate(initDate)
         .endDate(endDate)
         .build();
@@ -51,5 +55,17 @@ public class AddProductPriceService implements AddProductPricePort {
     }
 
     return priceRepositoryPort.save(productId, price);
+  }
+
+  private String normalizeCurrency(String currency) {
+    if (currency == null || currency.isBlank()) {
+      throw new InvalidPriceCurrencyException();
+    }
+
+    String normalizedCurrency = currency.trim().toUpperCase();
+    if (!normalizedCurrency.matches("[A-Z]{3}")) {
+      throw new InvalidPriceCurrencyException();
+    }
+    return normalizedCurrency;
   }
 }

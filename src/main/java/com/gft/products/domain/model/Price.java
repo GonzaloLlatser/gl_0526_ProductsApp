@@ -18,6 +18,7 @@ public class Price {
 
   private Long id;
   private BigDecimal value;
+  private String currency;
   private LocalDate initDate;
   private LocalDate endDate;
 }

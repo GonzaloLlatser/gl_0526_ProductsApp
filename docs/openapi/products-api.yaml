@@ -7,7 +7,7 @@ info:
     Price ranges use closed intervals: initDate and endDate are both inclusive.
     When endDate is null, the price is valid indefinitely from initDate.
     A product cannot have two prices active on the same day.
-  version: 1.2.0
+  version: 1.3.0
 servers:
   - url: http://localhost:8080
     description: Local development server
@@ -67,6 +67,7 @@ paths:
               addPrice:
                 value:
                   value: 99.99
+                  currency: EUR
                   initDate: '2024-01-01'
                   endDate: '2024-06-30'
       responses:
@@ -80,6 +81,7 @@ paths:
                 priceCreated:
                   value:
                     value: 99.99
+                    currency: EUR
                     initDate: '2024-01-01'
                     endDate: '2024-06-30'
         '400':
@@ -149,6 +151,7 @@ paths:
                   summary: Response when date query parameter is provided
                   value:
                     value: 99.99
+                    currency: EUR
                 priceHistory:
                   summary: Response when date query parameter is omitted
                   value:
@@ -156,9 +159,11 @@ paths:
                     description: Modelo 2025 edicion limitada
                     prices:
                       - value: 99.99
+                        currency: EUR
                         initDate: '2024-01-01'
                         endDate: '2024-06-30'
                       - value: 199.99
+                        currency: EUR
                         initDate: '2025-01-01'
                         endDate: '2025-06-30'
                     page: 0
@@ -278,6 +283,7 @@ components:
       additionalProperties: false
       required:
         - value
+        - currency
         - initDate
       properties:
         value:
@@ -287,6 +293,13 @@ components:
           exclusiveMinimum: true
           description: Product price value. Must be greater than zero.
           example: 99.99
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          pattern: '^[A-Za-z]{3}$'
+          description: ISO 4217 currency code.
+          example: EUR
         initDate:
           type: string
           format: date
@@ -307,12 +320,16 @@ components:
       additionalProperties: false
       required:
         - value
+        - currency
       properties:
         value:
           type: number
           format: decimal
           description: Active product price for the requested date.
           example: 99.99
+        currency:
+          type: string
+          example: EUR
     ProductPriceHistoryResponse:
       type: object
       additionalProperties: false
@@ -357,12 +374,16 @@ components:
       additionalProperties: false
       required:
         - value
+        - currency
         - initDate
       properties:
         value:
           type: number
           format: decimal
           example: 99.99
+        currency:
+          type: string
+          example: EUR
         initDate:
           type: string
           format: date

@@ -36,6 +36,7 @@ class ProductRestMapperTest {
   void shouldMapPriceToPriceResponse() {
     Price price = Price.builder()
         .value(new BigDecimal("99.99"))
+        .currency("EUR")
         .initDate(LocalDate.of(2024, 1, 1))
         .endDate(LocalDate.of(2024, 12, 31))
         .build();
@@ -43,6 +44,7 @@ class ProductRestMapperTest {
     PriceResponse response = ProductRestMapper.toPriceResponse(price);
 
     assertThat(response.value()).isEqualByComparingTo("99.99");
+    assertThat(response.currency()).isEqualTo("EUR");
     assertThat(response.initDate()).isEqualTo(LocalDate.of(2024, 1, 1));
     assertThat(response.endDate()).isEqualTo(LocalDate.of(2024, 12, 31));
   }
@@ -51,11 +53,13 @@ class ProductRestMapperTest {
   void shouldMapCurrentPriceToCurrentPriceResponse() {
     Price price = Price.builder()
         .value(new BigDecimal("99.99"))
+        .currency("EUR")
         .build();
 
     CurrentPriceResponse response = ProductRestMapper.toCurrentPriceResponse(price);
 
     assertThat(response.value()).isEqualByComparingTo("99.99");
+    assertThat(response.currency()).isEqualTo("EUR");
   }
 
   @Test
@@ -66,6 +70,7 @@ class ProductRestMapperTest {
         .prices(List.of(
             Price.builder()
                 .value(new BigDecimal("99.99"))
+                .currency("EUR")
                 .initDate(LocalDate.of(2024, 1, 1))
                 .endDate(null)
                 .build()
@@ -82,6 +87,7 @@ class ProductRestMapperTest {
     assertThat(response.description()).isEqualTo("camiseta One love");
     assertThat(response.prices()).hasSize(1);
     assertThat(response.prices().getFirst().value()).isEqualByComparingTo("99.99");
+    assertThat(response.prices().getFirst().currency()).isEqualTo("EUR");
     assertThat(response.page()).isZero();
     assertThat(response.size()).isEqualTo(10);
     assertThat(response.totalElements()).isEqualTo(1);
