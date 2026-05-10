@@ -2,6 +2,7 @@ package com.gft.products.infrastructure.adapter.in.rest.controller;
 
 import com.gft.products.application.port.in.AddProductPricePort;
 import com.gft.products.application.port.in.CreateProductPort;
+import com.gft.products.application.port.in.DeleteProductPricePort;
 import com.gft.products.application.port.in.GetCurrentProductPricePort;
 import com.gft.products.application.port.in.GetProductPriceHistoryPort;
 import com.gft.products.application.port.in.UpdateProductPricePort;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +44,7 @@ public class ProductController {
   private final CreateProductPort createProductPort;
   private final AddProductPricePort addProductPricePort;
   private final UpdateProductPricePort updateProductPricePort;
+  private final DeleteProductPricePort deleteProductPricePort;
   private final GetCurrentProductPricePort getCurrentProductPricePort;
   private final GetProductPriceHistoryPort getProductPriceHistoryPort;
 
@@ -80,6 +83,14 @@ public class ProductController {
         request.initDate(),
         request.endDate());
     return ResponseEntity.ok(ProductRestMapper.toPriceResponse(price));
+  }
+
+  @DeleteMapping("/{productId}/prices/{priceId}")
+  public ResponseEntity<Void> deleteProductPrice(
+      @Positive @PathVariable Long productId,
+      @Positive @PathVariable Long priceId) {
+    deleteProductPricePort.deleteProductPrice(productId, priceId);
+    return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/{id}/prices")

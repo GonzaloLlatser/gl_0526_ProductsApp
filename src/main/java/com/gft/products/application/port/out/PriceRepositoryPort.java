@@ -10,6 +10,8 @@ public interface PriceRepositoryPort {
 
   Price save(Long productId, Price price);
 
+  void deleteById(Long priceId);
+
   PricePage findByProductId(Long productId, int page, int size, String sortField, boolean ascending);
 
   Optional<Price> findByIdAndProductId(Long productId, Long priceId);

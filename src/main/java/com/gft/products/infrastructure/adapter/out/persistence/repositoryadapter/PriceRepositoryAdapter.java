@@ -33,6 +33,12 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
   }
 
   @Override
+  @Transactional
+  public void deleteById(Long priceId) {
+    priceJpaRepository.deleteById(priceId);
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public PricePage findByProductId(Long productId, int page, int size, String sortField, boolean ascending) {
     Sort sort = ascending ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();

@@ -2,7 +2,7 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.4.0-SNAPSHOT`.
+Version actual: `1.5.0-SNAPSHOT`.
 
 ## Funcionalidad
 
@@ -16,6 +16,7 @@ La aplicacion implementa los requisitos base de la prueba tecnica y los bonus do
 - Gestionar errores de validacion, producto no encontrado y precio no encontrado.
 - Soportar moneda por precio.
 - Actualizar precios existentes manteniendo reglas de validacion y solape.
+- Eliminar precios existentes.
 
 Los rangos de precio se tratan como intervalos cerrados: `initDate` y `endDate` son inclusivos. Cuando `endDate` es `null`, el precio queda vigente indefinidamente desde `initDate`.
 
@@ -118,6 +119,12 @@ PUT /products/{productId}/prices/{priceId}
   "initDate": "2024-01-01",
   "endDate": "2024-06-30"
 }
+```
+
+### Eliminar precio
+
+```http
+DELETE /products/{productId}/prices/{priceId}
 ```
 
 ### Consultar precio vigente
@@ -231,6 +238,8 @@ Los E2E cubren:
 - Obtener `404` si no hay precio vigente.
 - Obtener historial completo.
 - Obtener historial paginado y ordenado.
+- Actualizar precios existentes.
+- Eliminar precios existentes.
 
 ## Base De Datos
 
@@ -303,6 +312,11 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - No se implementan endpoints no requeridos para mantener el codigo minimo.
 
 ## Versiones
+
+### 1.5.0
+
+- Bonus: endpoint para eliminar precios existentes.
+- Validacion de existencia del producto y pertenencia del precio al producto.
 
 ### 1.4.0
 

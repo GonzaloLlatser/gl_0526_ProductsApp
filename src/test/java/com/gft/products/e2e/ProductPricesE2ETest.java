@@ -125,6 +125,38 @@ class ProductPricesE2ETest {
   }
 
   @Test
+  void shouldDeletePriceSuccessfully() {
+    Long productId = createProduct("E2E Delete Price Product");
+    Long priceId = addPrice(productId, "89.99", "2040-01-01", "2040-12-31");
+
+    given()
+        .when()
+        .delete("/products/{productId}/prices/{priceId}", productId, priceId)
+        .then()
+        .statusCode(204);
+
+    given()
+        .queryParam("date", "2040-04-15")
+        .when()
+        .get("/products/{id}/prices", productId)
+        .then()
+        .statusCode(404)
+        .body("code", equalTo("PRICE_NOT_FOUND"));
+  }
+
+  @Test
+  void shouldReturnNotFoundWhenDeletingMissingPrice() {
+    Long productId = createProduct("E2E Delete Missing Price Product");
+
+    given()
+        .when()
+        .delete("/products/{productId}/prices/{priceId}", productId, 999999L)
+        .then()
+        .statusCode(404)
+        .body("code", equalTo("PRICE_NOT_FOUND"));
+  }
+
+  @Test
   void shouldGetCurrentPriceByDate() {
     Long productId = createProduct("E2E Current Price Product");
     addPrice(productId, "49.99", "2033-01-01", "2033-12-31");
