@@ -175,7 +175,7 @@ components:
             invalidRequest:
               value:
                 code: INVALID_REQUEST
-                message: Request body is malformed or contains unsupported fields
+                message: Request body or parameters are invalid
                 details: []
     NotFound:
       description: Requested resource was not found

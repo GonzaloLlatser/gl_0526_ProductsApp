@@ -245,6 +245,8 @@ Contrato OpenAPI estatico:
 docs/openapi/products-api.yaml
 ```
 
+Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api-docs` es la documentacion runtime generada por Springdoc a partir de los controllers.
+
 ## Decisiones Tecnicas
 
 - Se usa arquitectura hexagonal para separar casos de uso, dominio e infraestructura.
