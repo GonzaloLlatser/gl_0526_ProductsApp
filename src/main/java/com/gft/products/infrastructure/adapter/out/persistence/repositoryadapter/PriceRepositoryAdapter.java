@@ -45,6 +45,7 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsOverlappingPrice(Long productId, Price price) {
     LocalDate endDate = price.getEndDate() == null ? LocalDate.MAX : price.getEndDate();
     return priceJpaRepository.existsOverlappingPrice(productId, price.getInitDate(), endDate);

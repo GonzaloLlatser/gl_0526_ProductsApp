@@ -1,16 +1,13 @@
 package com.gft.products.infrastructure.adapter.out.persistence.repositoryadapter;
 
 import com.gft.products.application.port.out.ProductRepositoryPort;
-import com.gft.products.domain.model.Price;
 import com.gft.products.domain.model.Product;
-import com.gft.products.infrastructure.adapter.out.persistence.entity.PriceEntity;
 import com.gft.products.infrastructure.adapter.out.persistence.entity.ProductEntity;
 import com.gft.products.infrastructure.adapter.out.persistence.jparepository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -34,6 +31,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public boolean existsById(Long productId) {
     return productJpaRepository.existsById(productId);
   }
@@ -51,22 +49,6 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
         .id(productEntity.getId())
         .name(productEntity.getName())
         .description(productEntity.getDescription())
-        .prices(toPrices(productEntity.getPrices()))
-        .build();
-  }
-
-  private List<Price> toPrices(List<PriceEntity> priceEntities) {
-    return priceEntities.stream()
-        .map(this::toPrice)
-        .toList();
-  }
-
-  private Price toPrice(PriceEntity priceEntity) {
-    return Price.builder()
-        .id(priceEntity.getId())
-        .value(priceEntity.getValue())
-        .initDate(priceEntity.getInitDate())
-        .endDate(priceEntity.getEndDate())
         .build();
   }
 }
