@@ -2,7 +2,7 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.0.0-SNAPSHOT`.
+Version actual: `1.1.0-SNAPSHOT`.
 
 ## Funcionalidad
 
@@ -225,6 +225,8 @@ jdbc:h2:mem:products;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 
 Las tablas se crean con `src/main/resources/schema.sql` y los datos iniciales se cargan con `src/main/resources/data.sql`.
 
+La carga de datos de prueba es automatica al arrancar la aplicacion porque `spring.sql.init.mode=always` ejecuta ambos scripts. El seed incluye varios productos, historiales con rangos cerrados y precios vigentes sin fecha fin para facilitar la revision manual desde API o H2.
+
 ## Swagger / OpenAPI
 
 Swagger UI:
@@ -259,6 +261,11 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 
 ## Versiones
 
+### 1.1.0
+
+- Bonus: scripts automaticos de esquema y datos de prueba con `schema.sql` y `data.sql`.
+- Documentacion explicita del seed inicial y de su ejecucion automatica.
+
 ### 1.0.0
 
 - Requisitos funcionales base.
@@ -267,5 +274,3 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - Validaciones y gestion centralizada de errores.
 - OpenAPI/Swagger UI.
 - Tests unitarios y E2E.
-
-Los bonus quedan fuera de esta primera version.
