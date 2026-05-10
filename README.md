@@ -2,7 +2,7 @@
 
 API REST para gestionar productos y sus precios historicos.
 
-Version actual: `1.1.0-SNAPSHOT`.
+Version actual: `1.2.0-SNAPSHOT`.
 
 ## Funcionalidad
 
@@ -134,9 +134,21 @@ Respuesta:
       "initDate": "2024-01-01",
       "endDate": "2024-06-30"
     }
-  ]
+  ],
+  "page": 0,
+  "size": 10,
+  "totalElements": 1,
+  "totalPages": 1
 }
 ```
+
+El historial soporta paginacion y ordenacion:
+
+```http
+GET /products/{id}/prices?page=0&size=10&sort=initDate,asc
+```
+
+Campos de ordenacion soportados: `initDate`, `endDate`, `value`. Direcciones soportadas: `asc`, `desc`.
 
 ## Ejecutar
 
@@ -198,6 +210,7 @@ Los E2E cubren:
 - Obtener precio vigente por fecha.
 - Obtener `404` si no hay precio vigente.
 - Obtener historial completo.
+- Obtener historial paginado y ordenado.
 
 ## Base De Datos
 
@@ -226,6 +239,14 @@ jdbc:h2:mem:products;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 Las tablas se crean con `src/main/resources/schema.sql` y los datos iniciales se cargan con `src/main/resources/data.sql`.
 
 La carga de datos de prueba es automatica al arrancar la aplicacion porque `spring.sql.init.mode=always` ejecuta ambos scripts. El seed incluye varios productos, historiales con rangos cerrados y precios vigentes sin fecha fin para facilitar la revision manual desde API o H2.
+
+Para probar paginacion manualmente se puede usar el producto seed `6`, que contiene 24 precios historicos:
+
+```http
+GET /products/6/prices?page=0&size=10&sort=initDate,asc
+GET /products/6/prices?page=1&size=10&sort=initDate,asc
+GET /products/6/prices?page=0&size=5&sort=value,desc
+```
 
 ## Swagger / OpenAPI
 
@@ -260,6 +281,12 @@ Este YAML es el contrato API-first versionado del proyecto. El endpoint `/v3/api
 - No se implementan endpoints no requeridos para mantener el codigo minimo.
 
 ## Versiones
+
+### 1.2.0
+
+- Bonus: paginacion y ordenacion en el historial de precios.
+- Producto seed con historial largo para revision manual.
+- Tests E2E independientes para validar paginacion y ordenacion.
 
 ### 1.1.0
 

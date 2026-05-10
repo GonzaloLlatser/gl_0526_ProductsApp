@@ -2,16 +2,19 @@ package com.gft.products.infrastructure.adapter.out.persistence.repositoryadapte
 
 import com.gft.products.application.port.out.PriceRepositoryPort;
 import com.gft.products.domain.model.Price;
+import com.gft.products.domain.model.PricePage;
 import com.gft.products.infrastructure.adapter.out.persistence.entity.PriceEntity;
 import com.gft.products.infrastructure.adapter.out.persistence.entity.ProductEntity;
 import com.gft.products.infrastructure.adapter.out.persistence.jparepository.PriceJpaRepository;
 import com.gft.products.infrastructure.adapter.out.persistence.jparepository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,10 +34,19 @@ public class PriceRepositoryAdapter implements PriceRepositoryPort {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Price> findByProductId(Long productId) {
-    return priceJpaRepository.findByProductIdOrderByInitDateAsc(productId).stream()
-        .map(this::toDomain)
-        .toList();
+  public PricePage findByProductId(Long productId, int page, int size, String sortField, boolean ascending) {
+    Sort sort = ascending ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+    Page<PriceEntity> prices = priceJpaRepository.findByProductId(productId, PageRequest.of(page, size, sort));
+
+    return PricePage.builder()
+        .prices(prices.stream()
+            .map(this::toDomain)
+            .toList())
+        .page(prices.getNumber())
+        .size(prices.getSize())
+        .totalElements(prices.getTotalElements())
+        .totalPages(prices.getTotalPages())
+        .build();
   }
 
   @Override

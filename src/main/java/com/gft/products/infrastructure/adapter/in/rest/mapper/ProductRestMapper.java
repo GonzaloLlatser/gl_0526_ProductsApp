@@ -2,6 +2,7 @@ package com.gft.products.infrastructure.adapter.in.rest.mapper;
 
 import com.gft.products.domain.model.Price;
 import com.gft.products.domain.model.Product;
+import com.gft.products.domain.model.ProductPriceHistory;
 import com.gft.products.infrastructure.adapter.in.rest.dto.CurrentPriceResponse;
 import com.gft.products.infrastructure.adapter.in.rest.dto.PriceResponse;
 import com.gft.products.infrastructure.adapter.in.rest.dto.ProductPriceHistoryResponse;
@@ -34,15 +35,19 @@ public final class ProductRestMapper {
     return new CurrentPriceResponse(price.getValue());
   }
 
-  public static ProductPriceHistoryResponse toProductPriceHistoryResponse(Product product) {
-    List<PriceResponse> prices = product.getPrices().stream()
+  public static ProductPriceHistoryResponse toProductPriceHistoryResponse(ProductPriceHistory productPriceHistory) {
+    List<PriceResponse> prices = productPriceHistory.getPrices().stream()
         .map(ProductRestMapper::toPriceResponse)
         .toList();
 
     return new ProductPriceHistoryResponse(
-        product.getName(),
-        product.getDescription(),
-        prices
+        productPriceHistory.getName(),
+        productPriceHistory.getDescription(),
+        prices,
+        productPriceHistory.getPage(),
+        productPriceHistory.getSize(),
+        productPriceHistory.getTotalElements(),
+        productPriceHistory.getTotalPages()
     );
   }
 }

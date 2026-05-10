@@ -1,17 +1,18 @@
 package com.gft.products.infrastructure.adapter.out.persistence.jparepository;
 
 import com.gft.products.infrastructure.adapter.out.persistence.entity.PriceEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface PriceJpaRepository extends JpaRepository<PriceEntity, Long> {
 
-  List<PriceEntity> findByProductIdOrderByInitDateAsc(Long productId);
+  Page<PriceEntity> findByProductId(Long productId, Pageable pageable);
 
   @Query("""
       SELECT price

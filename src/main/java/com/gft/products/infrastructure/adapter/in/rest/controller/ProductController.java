@@ -6,12 +6,16 @@ import com.gft.products.application.port.in.GetCurrentProductPricePort;
 import com.gft.products.application.port.in.GetProductPriceHistoryPort;
 import com.gft.products.domain.model.Price;
 import com.gft.products.domain.model.Product;
+import com.gft.products.domain.model.ProductPriceHistory;
 import com.gft.products.infrastructure.adapter.in.rest.dto.CreatePriceRequest;
 import com.gft.products.infrastructure.adapter.in.rest.dto.CreateProductRequest;
 import com.gft.products.infrastructure.adapter.in.rest.dto.PriceResponse;
 import com.gft.products.infrastructure.adapter.in.rest.dto.ProductResponse;
 import com.gft.products.infrastructure.adapter.in.rest.mapper.ProductRestMapper;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -62,12 +66,16 @@ public class ProductController {
   @GetMapping("/{id}/prices")
   public ResponseEntity<?> getProductPrices(
       @Positive @PathVariable Long id,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+      @Min(0) @RequestParam(defaultValue = "0") int page,
+      @Min(1) @Max(100) @RequestParam(defaultValue = "10") int size,
+      @Pattern(regexp = "^(initDate|endDate|value),(asc|desc)$")
+      @RequestParam(defaultValue = "initDate,asc") String sort) {
     if (date != null) {
       Price price = getCurrentProductPricePort.getCurrentProductPrice(id, date);
       return ResponseEntity.ok(ProductRestMapper.toCurrentPriceResponse(price));
     }
-    Product product = getProductPriceHistoryPort.getProductPriceHistory(id);
-    return ResponseEntity.ok(ProductRestMapper.toProductPriceHistoryResponse(product));
+    ProductPriceHistory productPriceHistory = getProductPriceHistoryPort.getProductPriceHistory(id, page, size, sort);
+    return ResponseEntity.ok(ProductRestMapper.toProductPriceHistoryResponse(productPriceHistory));
   }
 }

@@ -133,7 +133,57 @@ class ProductPricesE2ETest {
         .body("prices[0].endDate", equalTo("2036-06-30"))
         .body("prices[1].value", comparesEqualTo(29.99F))
         .body("prices[1].initDate", equalTo("2036-07-01"))
-        .body("prices[1].endDate", equalTo(null));
+        .body("prices[1].endDate", equalTo(null))
+        .body("page", equalTo(0))
+        .body("size", equalTo(10))
+        .body("totalElements", equalTo(2))
+        .body("totalPages", equalTo(1));
+  }
+
+  @Test
+  void shouldGetPaginatedAndSortedPriceHistory() {
+    Long productId = createProduct("E2E Paginated History Product");
+    addPrice(productId, "10.00", "2037-01-01", "2037-01-31");
+    addPrice(productId, "20.00", "2037-02-01", "2037-02-28");
+    addPrice(productId, "30.00", "2037-03-01", "2037-03-31");
+    addPrice(productId, "40.00", "2037-04-01", "2037-04-30");
+    addPrice(productId, "50.00", "2037-05-01", "2037-05-31");
+    addPrice(productId, "60.00", "2037-06-01", null);
+
+    given()
+        .queryParam("page", 1)
+        .queryParam("size", 2)
+        .queryParam("sort", "initDate,asc")
+        .when()
+        .get("/products/{id}/prices", productId)
+        .then()
+        .statusCode(200)
+        .body("prices", hasSize(2))
+        .body("prices[0].value", comparesEqualTo(30.00F))
+        .body("prices[0].initDate", equalTo("2037-03-01"))
+        .body("prices[1].value", comparesEqualTo(40.00F))
+        .body("prices[1].initDate", equalTo("2037-04-01"))
+        .body("page", equalTo(1))
+        .body("size", equalTo(2))
+        .body("totalElements", equalTo(6))
+        .body("totalPages", equalTo(3));
+
+    given()
+        .queryParam("page", 0)
+        .queryParam("size", 3)
+        .queryParam("sort", "value,desc")
+        .when()
+        .get("/products/{id}/prices", productId)
+        .then()
+        .statusCode(200)
+        .body("prices", hasSize(3))
+        .body("prices[0].value", comparesEqualTo(60.00F))
+        .body("prices[1].value", comparesEqualTo(50.00F))
+        .body("prices[2].value", comparesEqualTo(40.00F))
+        .body("page", equalTo(0))
+        .body("size", equalTo(3))
+        .body("totalElements", equalTo(6))
+        .body("totalPages", equalTo(2));
   }
 
   private Long createProduct(String name) {

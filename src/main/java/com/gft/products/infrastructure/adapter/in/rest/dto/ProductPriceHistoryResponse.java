@@ -5,6 +5,10 @@ import java.util.List;
 public record ProductPriceHistoryResponse(
     String name,
     String description,
-    List<PriceResponse> prices
+    List<PriceResponse> prices,
+    int page,
+    int size,
+    long totalElements,
+    int totalPages
 ) {
 }

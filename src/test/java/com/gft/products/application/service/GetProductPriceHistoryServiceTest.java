@@ -4,7 +4,9 @@ import com.gft.products.application.exceptions.ProductNotFoundException;
 import com.gft.products.application.port.out.PriceRepositoryPort;
 import com.gft.products.application.port.out.ProductRepositoryPort;
 import com.gft.products.domain.model.Price;
+import com.gft.products.domain.model.PricePage;
 import com.gft.products.domain.model.Product;
+import com.gft.products.domain.model.ProductPriceHistory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,21 +52,31 @@ class GetProductPriceHistoryServiceTest {
     );
 
     when(productRepositoryPort.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
-    when(priceRepositoryPort.findByProductId(PRODUCT_ID)).thenReturn(prices);
+    when(priceRepositoryPort.findByProductId(PRODUCT_ID, 0, 10, "initDate", true))
+        .thenReturn(PricePage.builder()
+            .prices(prices)
+            .page(0)
+            .size(10)
+            .totalElements(1)
+            .totalPages(1)
+            .build());
 
-    Product result = getProductPriceHistoryService.getProductPriceHistory(PRODUCT_ID);
+    ProductPriceHistory result = getProductPriceHistoryService.getProductPriceHistory(PRODUCT_ID, 0, 10, "initDate,asc");
 
-    assertThat(result.getId()).isEqualTo(PRODUCT_ID);
     assertThat(result.getName()).isEqualTo("camiseta");
     assertThat(result.getDescription()).isEqualTo("camiseta hombre One love");
     assertThat(result.getPrices()).isEqualTo(prices);
+    assertThat(result.getPage()).isZero();
+    assertThat(result.getSize()).isEqualTo(10);
+    assertThat(result.getTotalElements()).isEqualTo(1);
+    assertThat(result.getTotalPages()).isEqualTo(1);
   }
 
   @Test
   void shouldRejectPriceHistoryLookupWhenProductDoesNotExist() {
     when(productRepositoryPort.findById(PRODUCT_ID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> getProductPriceHistoryService.getProductPriceHistory(PRODUCT_ID))
+    assertThatThrownBy(() -> getProductPriceHistoryService.getProductPriceHistory(PRODUCT_ID, 0, 10, "initDate,asc"))
         .isInstanceOf(ProductNotFoundException.class);
   }
 }

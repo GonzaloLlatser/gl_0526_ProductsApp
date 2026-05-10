@@ -2,6 +2,7 @@ package com.gft.products.infrastructure.adapter.in.rest.mapper;
 
 import com.gft.products.domain.model.Price;
 import com.gft.products.domain.model.Product;
+import com.gft.products.domain.model.ProductPriceHistory;
 import com.gft.products.infrastructure.adapter.in.rest.dto.CurrentPriceResponse;
 import com.gft.products.infrastructure.adapter.in.rest.dto.PriceResponse;
 import com.gft.products.infrastructure.adapter.in.rest.dto.ProductPriceHistoryResponse;
@@ -59,7 +60,7 @@ class ProductRestMapperTest {
 
   @Test
   void shouldMapProductPriceHistoryToResponse() {
-    Product product = Product.builder()
+    ProductPriceHistory productPriceHistory = ProductPriceHistory.builder()
         .name("camiseta")
         .description("camiseta One love")
         .prices(List.of(
@@ -69,13 +70,21 @@ class ProductRestMapperTest {
                 .endDate(null)
                 .build()
         ))
+        .page(0)
+        .size(10)
+        .totalElements(1)
+        .totalPages(1)
         .build();
 
-    ProductPriceHistoryResponse response = ProductRestMapper.toProductPriceHistoryResponse(product);
+    ProductPriceHistoryResponse response = ProductRestMapper.toProductPriceHistoryResponse(productPriceHistory);
 
     assertThat(response.name()).isEqualTo("camiseta");
     assertThat(response.description()).isEqualTo("camiseta One love");
     assertThat(response.prices()).hasSize(1);
     assertThat(response.prices().getFirst().value()).isEqualByComparingTo("99.99");
+    assertThat(response.page()).isZero();
+    assertThat(response.size()).isEqualTo(10);
+    assertThat(response.totalElements()).isEqualTo(1);
+    assertThat(response.totalPages()).isEqualTo(1);
   }
 }

@@ -1,8 +1,8 @@
 package com.gft.products.application.port.in;
 
-import com.gft.products.domain.model.Product;
+import com.gft.products.domain.model.ProductPriceHistory;
 
 public interface GetProductPriceHistoryPort {
 
-  Product getProductPriceHistory(Long productId);
+  ProductPriceHistory getProductPriceHistory(Long productId, int page, int size, String sort);
 }
